@@ -9,36 +9,45 @@ var webpack = require('gulp-webpack');
 var nodemon = require('gulp-nodemon');
 var port = process.env.PORT || 3000;
 
+var targets = {
+  css_src: 'public/css/**/*.css',
+  js_src: 'public/js/**/*.js',
+  css_dest: 'dest/css',
+  js_dest: 'dest/js',
+  webpack_dest: 'app.js',
+  main: 'index.js'
+};
+
 gulp.task('css', function() {
   var processorArray = [
-    autoprefixer({browsers: ['last 2 versions']}),
-    cssnano()
+    autoprefixer({ browsers: ['last 2 versions'] }),
+    cssnano() // minify css
   ];
-  return gulp.src('css/**/*.css')
-    .pipe(postcss(processorArray))
-    .pipe(gulp.dest('public/css'))
+  return gulp.src(targets.css_src)
+    .pipe(postcss(processorArray)) // transform to css
+    .pipe(gulp.dest(targets.css_dest))
 });
 
 gulp.task('jslint', function() {
-  return gulp.src('src/*.js')
+  return gulp.src(targets.js_src)
     .pipe(jshint())
     .pipe(jshint.reporter(stylish))
 });
 
 gulp.task('webpack', function() {
-  return gulp.src('src/*.js')
+  return gulp.src(targets.js_src)
     .pipe(webpack({
-      output: { filename: 'app.js' }
+      output: { filename: targets.webpack_dest }
     }))
-    .pipe(gulp.dest('public/js'))
+    .pipe(gulp.dest(targets.js_dest))
 });
 
 gulp.task('browser-sync', function() {
   browserSync.init({
     proxy: 'http://localhost:' + port,
-    port: 5000,
-    notify: true,
-    files:['public/**/*.*']
+    port: 5000, // must be different than port above
+    notify: false, // hide popovers in browser window
+    files:['dest/**/*.*'] // files to watch
   });
 });
 
@@ -59,10 +68,10 @@ gulp.task('nodemon', function(cb) {
   });
 });
 
-gulp.task('default', ['css', 'jslint', 'webpack', 'browser-sync', 'nodemon'], function() {
-  gulp.watch('css/*.css', ['css']);
-  gulp.watch('public/css/*.css').on('change', browserSync.reload);
-  gulp.watch('src/*.js', ['jslint']).on('change', browserSync.reload);
-  gulp.watch('src/*.js', ['webpack']).on('change', browserSync.reload);
+gulp.task('default', ['browser-sync', 'nodemon'], function() {
+  gulp.watch(targets.css_src, ['css']);
+  gulp.watch(targets.css_dest).on('change', browserSync.reload);
+  gulp.watch(targets.js_src, ['jslint']).on('change', browserSync.reload);
+  gulp.watch(targets.js_src, ['webpack']).on('change', browserSync.reload);
   gulp.watch('public/index.html').on('change', browserSync.reload);
 });
