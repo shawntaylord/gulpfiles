@@ -10,10 +10,10 @@ var nodemon = require('gulp-nodemon');
 var port = process.env.PORT || 3000;
 
 var targets = {
-  css_src: 'public/css/**/*.css',
-  js_src: 'public/js/**/*.js',
-  css_dest: 'dest/css',
-  js_dest: 'dest/js',
+  css_src: 'css/**/*.css',
+  js_src: 'src/**/*.js',
+  css_dest: 'public/css',
+  js_dest: 'public/js',
   webpack_dest: 'app.js',
   main: 'index.js'
 };
